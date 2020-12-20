@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.JSON_PATCH_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,12 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
@@ -40,23 +39,41 @@ class PersonControllerTest {
     private String patchPayload;
 
     @Test
+    public void test_findAllByFirstName() throws Exception {
+        Person person = new Person();
+        person.setFirstName(EXPECTED_PERSON_FIRST_NAME);
+        person.setLastName(EXPECTED_PERSON_LAST_NAME);
+
+        mvc.perform(MockMvcRequestBuilders.post(PersonController.REQUEST_MAPPING)
+                .contentType(MediaType.APPLICATION_JSON).content(asJsonString(person))).andDo(print())
+                .andExpect(status().isCreated());
+
+        mvc.perform(MockMvcRequestBuilders.get(
+                PersonController.REQUEST_MAPPING + "/search/findByFirstName?firstName=" + EXPECTED_PERSON_FIRST_NAME))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.person[0]._links.self.href", is("http://localhost/person/1")))
+                .andExpect(jsonPath("$._embedded.person[0].firstName", is(EXPECTED_PERSON_FIRST_NAME)));
+    }
+
+    @Test
     public void test_patch() throws Exception {
         Person person = new Person();
         person.setFirstName(EXPECTED_PERSON_FIRST_NAME);
         person.setLastName(EXPECTED_PERSON_LAST_NAME);
 
-        mvc.perform(MockMvcRequestBuilders.post("/person/").contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(person))).andDo(print()).andExpect(status().isCreated());
+        mvc.perform(MockMvcRequestBuilders.post(PersonController.REQUEST_MAPPING)
+                .contentType(MediaType.APPLICATION_JSON).content(asJsonString(person))).andDo(print())
+                .andExpect(status().isCreated());
 
-        mvc.perform(MockMvcRequestBuilders.get("/person/{id}", EXPECTED_PERSON_ID).accept(MediaTypes.HAL_JSON_VALUE))
-                .andDo(print()).andExpect(status().isOk())
+        mvc.perform(MockMvcRequestBuilders.get(PersonController.REQUEST_MAPPING + "/{id}", EXPECTED_PERSON_ID)
+                .accept(MediaType.APPLICATION_JSON)).andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value(EXPECTED_PERSON_FIRST_NAME))
                 .andExpect(jsonPath("$.lastName").value(EXPECTED_PERSON_LAST_NAME));
 
         givenPatchItem();
 
-        mvc.perform(MockMvcRequestBuilders.patch("/person/" + EXPECTED_PERSON_ID).contentType(JSON_PATCH_JSON)
-                .content(patchPayload)).andDo(print()).andExpect(status().isNoContent());
+        mvc.perform(MockMvcRequestBuilders.patch(PersonController.REQUEST_MAPPING + "/" + EXPECTED_PERSON_ID)
+                .contentType(JSON_PATCH_JSON).content(patchPayload)).andDo(print()).andExpect(status().isNoContent());
 
         mvc.perform(MockMvcRequestBuilders.get("/person/" + EXPECTED_PERSON_ID).accept(MediaType.APPLICATION_JSON))
                 .andDo(print()).andExpect(jsonPath("$.firstName").value(EXPECTED_PERSON_FIRST_NAME_2))
