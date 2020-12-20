@@ -25,7 +25,7 @@ public class PersonController {
     private PersonRepository personRepository;
 
     @RequestMapping(value = REQUEST_MAPPING
-            + "/search/findByFirstName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+            + "/search/findByFirstName", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<CollectionModel<PersistentEntityResource>> findByFirstName(@RequestParam String firstName,
             PersistentEntityResourceAssembler assembler) {
