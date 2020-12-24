@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RepositoryRestController
 public class PersonController {
 
@@ -23,8 +21,7 @@ public class PersonController {
     @Autowired
     private PersonRepository personRepository;
 
-    @RequestMapping(value = REQUEST_MAPPING
-            + "/search/findByFirstName", method = RequestMethod.GET)
+    @RequestMapping(value = REQUEST_MAPPING + "/search/findByFirstName", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<CollectionModel<PersistentEntityResource>> findByFirstName(@RequestParam String firstName,
             PersistentEntityResourceAssembler assembler) {

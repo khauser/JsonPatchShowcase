@@ -12,21 +12,28 @@ repositories {
   mavenCentral()
 }
 
+ext {
+  junitVersion = '5.7.0'
+}
+
 dependencies {
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-  implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas'
 
   annotationProcessor(group: 'org.projectlombok', name: 'lombok')
   testAnnotationProcessor(group: 'org.projectlombok', name: 'lombok')
   compileOnly(group: 'org.projectlombok', name: 'lombok')
   testCompileOnly(group: 'org.projectlombok', name: 'lombok')
 
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
+
   runtimeOnly 'com.h2database:h2'
 
-  testImplementation('org.springframework.boot:spring-boot-starter-test') {
-    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-  }
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: "${junitVersion}"
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: "${junitVersion}"
+  testImplementation group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.7.0'
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 }
 
 test {
